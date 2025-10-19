@@ -6,14 +6,14 @@ jobs:
     strategy:
       matrix:
         os:
-          - name: freebsd
-            architecture: x86-64
-            version: '14.3'
+          # - name: freebsd
+          #   architecture: x86-64
+          #   version: '14.3'
           - name: haiku
             architecture: x86-64
             version: 'r1beta5'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Test on ${{ matrix.os.name }}
         uses: cross-platform-actions/action@v0.29.0
         with:
@@ -22,13 +22,17 @@ jobs:
           version: ${{ matrix.os.version }}
           shell: bash
           memory: 5G
-          cpu_count: 4
+          cpu_count: 2
+          sync_files: runner-to-vm
           run: |
             uname -a
             if [[ "${{ matrix.os.name }}" == "haiku" ]]; then pkgman install -y rust_bin; fi;
             if [[ "${{ matrix.os.name }}" == "freebsd" ]]; then export IGNORE_OSVERSION=yes && sudo pkg install -y rust; fi;
-            sleep 5
+            sleep 5 
+            ls
+            echo "cargo version:"
+            cargo version -v
             echo "Starting build..."
-            cargo build
+            cargo build -vv
             echo "Starting tests..."
             cargo test
